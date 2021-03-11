@@ -3,6 +3,8 @@ plugins {
     id 'kotlin-android'
     id 'dagger.hilt.android.plugin'
     id 'kotlin-kapt'
+    id 'kotlin-android-extensions'
+
 }
 
 android {
@@ -15,6 +17,7 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -38,6 +41,20 @@ android {
 }
 
 dependencies {
+    //location
+    implementation 'com.google.android.gms:play-services-location:18.0.0'
+
+    //multidex
+    implementation 'com.android.support:multidex:1.0.3'
+
+
+    //facebook
+    //share
+    implementation "com.facebook.android:facebook-share:5.15.3"
+
+    //login
+    implementation 'com.facebook.android:facebook-android-sdk:5.15.3'
+
 
     // retrofit
     implementation "com.squareup.retrofit2:retrofit:2.9.0"

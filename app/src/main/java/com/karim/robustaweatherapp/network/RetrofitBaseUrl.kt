@@ -8,7 +8,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ApplicationComponent
 import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory
 import okhttp3.Interceptor
-import okhttp3.OkHttp
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -19,7 +18,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(ApplicationComponent::class)
 class RetrofitBaseUrl {
-   private val BASE_URL:String=""
+   private val BASE_URL:String="https://api.openweathermap.org/data/2.5/weather/"
 
    private val okHttpClient=OkHttpClient.Builder()
         .retryOnConnectionFailure(true)

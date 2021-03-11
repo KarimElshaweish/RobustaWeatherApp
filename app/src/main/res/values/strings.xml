@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">RobustaWeatherApp</string>
     <string name="facebook_id">831848527418427</string>
+    <string name="fb_login_protocol_scheme">fb831848527418427</string>
+    <string name="my_shared_references">mySharedPreferences</string>
+    <string name="robusta">#Robusta</string>
+
 </resources>
