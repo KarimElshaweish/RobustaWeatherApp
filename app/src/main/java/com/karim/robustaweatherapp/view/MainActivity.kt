@@ -2,13 +2,18 @@ package com.karim.robustaweatherapp.view
 
 import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
 import android.os.Looper
-import android.util.Base64
+import android.provider.MediaStore
 import android.util.Log
+import android.view.View
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -20,52 +25,46 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.karim.robustaweatherapp.R
 import com.karim.robustaweatherapp.Utils.FaceBookOperations
-import com.karim.robustaweatherapp.model.Weather.Weather
 import com.karim.robustaweatherapp.model.Weather.WeatherData
 import com.karim.robustaweatherapp.viewmodel.WeatherViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
 
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(),View.OnClickListener {
     val REQUEST_CODE_FOR_LOCATION=77;
     var faceBookOperations:FaceBookOperations?=null
     var weatherViewModel:WeatherViewModel?=null
+
+    val CAMERA_CODE_PERMISSON=101
+    val CAMERA_CODE_REQUEST=102
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         faceBookOperations=FaceBookOperations(this,login_button,imageView,shareBtn)
         getTheCurrentLocation()
         weatherViewModel=ViewModelProvider(this).get(WeatherViewModel::class.java)
+        takePhotoBtn.setOnClickListener(this)
        // printHashKey()
 
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         faceBookOperations!!.onActivityResult(requestCode,resultCode,data)
             super.onActivityResult(requestCode, resultCode, data)
-        faceBookOperations?.shareImageContent()
-    }
-
-    fun printHashKey() {
-        try {
-            val info: PackageInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-            for (signature in info.signatures) {
-                val md: MessageDigest = MessageDigest.getInstance("SHA")
-                md.update(signature.toByteArray())
-                val hashKey = String(Base64.encode(md.digest(), 0))
-                Log.i("++++", "printHashKey() Hash Key: $hashKey")
-            }
-        } catch (e: NoSuchAlgorithmException) {
-            Log.e("+++++", "printHashKey()", e)
-        } catch (e: Exception) {
-            Log.e("++++", "printHashKey()", e)
+        if (requestCode==CAMERA_CODE_REQUEST){
+            val bitmap=data?.extras?.get("data") as Bitmap
+            imageView.setImageBitmap(bitmap)
         }
+        faceBookOperations?.shareImageContent(convertViewToBitmap(imageLayout))
+
     }
-
-
+    private fun convertViewToBitmap(layout: RelativeLayout):Bitmap{
+        layout.setDrawingCacheEnabled(true)
+        val bitmap = Bitmap.createBitmap(layout.getDrawingCache())
+        layout.setDrawingCacheEnabled(false)
+        return bitmap
+    }
     fun getTheCurrentLocation(){
         if(ContextCompat.checkSelfPermission(
                 applicationContext,Manifest.permission.ACCESS_FINE_LOCATION
@@ -85,13 +84,22 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if(requestCode==REQUEST_CODE_FOR_LOCATION&& grantResults.isNotEmpty()){
-            if(grantResults.get(0)==PackageManager.PERMISSION_GRANTED){
+            if(grantResults[0] ==PackageManager.PERMISSION_GRANTED){
                 getLocation()
             }else{
                 Toast.makeText(this,"Permission Denied",Toast.LENGTH_SHORT).show()
             }
         }
+        if(requestCode==CAMERA_CODE_PERMISSON&& grantResults.isNotEmpty()){
+            if(grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                openCamera()
+            }else{
+                Toast.makeText(this,"Permission Denied",Toast.LENGTH_SHORT).show()
+            }
+        }
     }
+
+
 
     private fun getLocation() {
         val locationRequest=LocationRequest()
@@ -132,7 +140,29 @@ class MainActivity : AppCompatActivity() {
         weatherViewModel?.getCurrentLocationWeather("c48556f2022eda7bea9f8709f1f3d98a",lat,lon)
         weatherViewModel?.mutableLiveData?.observe(this,Observer{
             data:WeatherData-> println(data)
+            cityName.text = data.name
+            temp.text= data.main.temp.toString()
+            humidity.text=data.main.humidity.toString()
         })
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    override fun onClick(v: View?) {
+        when(v?.id){
+            R.id.takePhotoBtn->takePhotoFromCamera()
+        }
+    }
+
+    private fun takePhotoFromCamera(){
+        if(ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA)!=PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA),CAMERA_CODE_PERMISSON)
+        }else{
+            openCamera()
+        }
+    }
+    private fun openCamera(){
+        val cameraIntent=Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        startActivityForResult(cameraIntent,CAMERA_CODE_REQUEST)
     }
 
 }

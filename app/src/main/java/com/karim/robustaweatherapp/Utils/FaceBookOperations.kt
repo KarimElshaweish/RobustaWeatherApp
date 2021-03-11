@@ -2,6 +2,7 @@ package com.karim.robustaweatherapp.Utils
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.util.Log
 import android.widget.ImageView
@@ -57,18 +58,15 @@ class FaceBookOperations (var context: Context,var loginButton: LoginButton,var 
         mySharedPreferences!!.removeFaceBookToken("fb")
     }
 
-    private fun checkIfUserLogin() {
-        if(mySharedPreferences!!.checkIfUserLoginWithFaceBook())
-            shareImageContent()
-    }
+
 
     private fun saveFaceBookLogin() {
         mySharedPreferences!!.saveFaceBookRegistration("fb")
     }
 
-     fun shareImageContent() {
-        val bitmapDrawable: BitmapDrawable = imageView.drawable as BitmapDrawable
-        val bitmap = bitmapDrawable.bitmap
+     fun shareImageContent( bitmap:Bitmap) {
+//        val bitmapDrawable: BitmapDrawable = imageView.drawable as BitmapDrawable
+//        val bitmap = bitmapDrawable.bitmap
 
         val sharePhoto = SharePhoto.Builder()
             .setBitmap(bitmap)
