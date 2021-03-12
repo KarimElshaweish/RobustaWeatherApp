@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.util.Log
 import android.widget.ImageView
+import android.widget.Toast
 import com.facebook.*
 import com.facebook.login.LoginResult
 import com.facebook.login.widget.LoginButton
@@ -79,6 +80,9 @@ class FaceBookOperations (var context: Context,var loginButton: LoginButton,var 
                 .setHashtag(context.getString(R.string.robusta)).build())
             .build()
         shareBtn.shareContent = sharePhotoContent
+        shareBtn.setOnClickListener {
+            Toast.makeText(context,"Clicked",Toast.LENGTH_SHORT).show()
+        }
     }
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?){

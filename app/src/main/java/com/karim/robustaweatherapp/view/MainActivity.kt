@@ -114,9 +114,6 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
             }
         }
     }
-
-
-
     private fun getLocation() {
         val locationRequest=LocationRequest()
         locationRequest.interval = 10000
