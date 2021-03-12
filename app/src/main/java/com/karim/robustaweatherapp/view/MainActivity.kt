@@ -4,8 +4,12 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.media.Image
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.os.Environment.getExternalStorageDirectory
 import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
@@ -17,18 +21,24 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.karim.robustaweatherapp.Adapter.WeatherDataAadpter
 import com.karim.robustaweatherapp.R
 import com.karim.robustaweatherapp.Utils.FaceBookOperations
 import com.karim.robustaweatherapp.model.Weather.WeatherData
 import com.karim.robustaweatherapp.viewmodel.WeatherViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 @AndroidEntryPoint
@@ -47,13 +57,19 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
         weatherViewModel=ViewModelProvider(this).get(WeatherViewModel::class.java)
         takePhotoBtn.setOnClickListener(this)
        // printHashKey()
-
+        setRVAdapter()
+    }
+    fun setRVAdapter(){
+        histroyRV.setHasFixedSize(true)
+        histroyRV.layoutManager=LinearLayoutManager(this)
+        var weatherDataAadpter=WeatherDataAadpter(emptyList())
+        histroyRV.adapter=weatherDataAadpter
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         faceBookOperations!!.onActivityResult(requestCode,resultCode,data)
             super.onActivityResult(requestCode, resultCode, data)
         if (requestCode==CAMERA_CODE_REQUEST){
-            val bitmap=data?.extras?.get("data") as Bitmap
+            val bitmap=BitmapFactory.decodeFile(mCurrentPhotoPath)
             imageView.setImageBitmap(bitmap)
         }
         faceBookOperations?.shareImageContent(convertViewToBitmap(imageLayout))
@@ -162,7 +178,22 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
     }
     private fun openCamera(){
         val cameraIntent=Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        val imageFile=createImageFile()
+        val imageUri=FileProvider.getUriForFile(this,"com.example.android.fileProvider",imageFile)
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,imageUri)
         startActivityForResult(cameraIntent,CAMERA_CODE_REQUEST)
     }
-
+    var mCurrentPhotoPath:String?=null
+    fun createImageFile():File{
+       val timeStamp=SimpleDateFormat("yyyymmdd_hhmmss").format(Date())
+        val imageName="jpg_"+timeStamp+"_"
+        val storageDir=getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val imageFile=File.createTempFile(
+                imageName,
+                ".jpg",
+                storageDir
+        )
+        mCurrentPhotoPath=imageFile.absolutePath
+        return imageFile
+    }
 }
