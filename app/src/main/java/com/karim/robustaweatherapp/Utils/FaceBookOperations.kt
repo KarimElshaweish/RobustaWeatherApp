@@ -15,6 +15,8 @@ import com.facebook.share.model.SharePhoto
 import com.facebook.share.model.SharePhotoContent
 import com.facebook.share.widget.ShareButton
 import com.karim.robustaweatherapp.R
+import com.karim.robustaweatherapp.RoomCashing.RoomCashingOperation
+import com.karim.robustaweatherapp.model.Weather.WeatherData
 
 class FaceBookOperations (var context: Context,var loginButton: LoginButton,var imageView: ImageView,var shareBtn: ShareButton) {
 
@@ -40,8 +42,6 @@ class FaceBookOperations (var context: Context,var loginButton: LoginButton,var 
 
         })
     //    checkIfUserLogin()
-
-
         val tokenTracker=object : AccessTokenTracker(){
             override fun onCurrentAccessTokenChanged(
                 oldAccessToken: AccessToken?,
@@ -65,10 +65,8 @@ class FaceBookOperations (var context: Context,var loginButton: LoginButton,var 
         mySharedPreferences!!.saveFaceBookRegistration("fb")
     }
 
-     fun shareImageContent( bitmap:Bitmap) {
-//        val bitmapDrawable: BitmapDrawable = imageView.drawable as BitmapDrawable
-//        val bitmap = bitmapDrawable.bitmap
 
+     fun shareImageContent( bitmap:Bitmap,weatherData: WeatherData,imagepath:String) {
         val sharePhoto = SharePhoto.Builder()
             .setBitmap(bitmap)
             .build()
@@ -81,8 +79,13 @@ class FaceBookOperations (var context: Context,var loginButton: LoginButton,var 
             .build()
         shareBtn.shareContent = sharePhotoContent
         shareBtn.setOnClickListener {
-            Toast.makeText(context,"Clicked",Toast.LENGTH_SHORT).show()
+            saveToOffline(weatherData,imagepath)
         }
+    }
+
+    private fun saveToOffline(weatherData: WeatherData,imagePath: String) {
+        val roomCashingOP=RoomCashingOperation(context)
+        roomCashingOP.setDataToOfflineWeatherData(weatherData,imagePath)
     }
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?){

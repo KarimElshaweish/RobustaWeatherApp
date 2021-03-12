@@ -16,7 +16,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="26dp"
-        app:layout_constraintBottom_toTopOf="@+id/shareBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -24,56 +23,15 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <LinearLayout
-            android:layout_alignParentBottom="true"
-            android:id="@+id/linearLayout"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_50sdp"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:weightSum="2"
-            app:layout_constraintBottom_toBottomOf="@+id/imageLayout">
-
-            <com.facebook.share.widget.ShareButton
-                android:id="@+id/shareBtn"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
-
-            <Button
-                android:id="@+id/takePhotoBtn"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:backgroundTint="@color/white"
-                android:text="pick image"
-                android:textColor="@color/purple_500" />
-        </LinearLayout>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="History"
-            android:textColor="@color/white"
-            android:layout_below="@id/imageLayout"
-            android:gravity="center"
-            android:layout_margin="@dimen/_5sdp"
-            android:textSize="@dimen/_15sdp"
-            android:id="@+id/histroyTextView"/>
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/histroyRV"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/histroyTextView"
-            android:layout_above="@id/linearLayout"/>
         <RelativeLayout
             android:id="@+id/imageLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_alignParentTop="true">
             <ImageView
                 android:id="@+id/imageView"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/_300sdp"
+                android:layout_height="match_parent"
                 android:scaleType="fitXY"
                 android:src="@drawable/defualt" />
             <LinearLayout
@@ -84,6 +42,7 @@
                 android:weightSum="3">
 
                 <TextView
+                    android:fontFamily="@font/akaya"
                     android:id="@+id/cityName"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -94,6 +53,7 @@
                     android:textColor="@color/white" />
 
                 <TextView
+                    android:fontFamily="@font/akaya"
                     android:id="@+id/temp"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -104,6 +64,7 @@
                     android:textColor="@color/white" />
 
                 <TextView
+                    android:fontFamily="@font/akaya"
                     android:id="@+id/humidity"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -114,6 +75,33 @@
                     android:textColor="@color/white" />
             </LinearLayout>
         </RelativeLayout>
+        <LinearLayout
+            android:layout_alignParentBottom="true"
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:background="@color/white"
+            >
+
+            <com.facebook.share.widget.ShareButton
+                android:id="@+id/shareBtn"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/takePhotoBtn"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:background="@color/white"
+                android:text="pick image"
+                android:fontFamily="@font/akaya"
+                android:textColor="#022867" />
+        </LinearLayout>
     </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

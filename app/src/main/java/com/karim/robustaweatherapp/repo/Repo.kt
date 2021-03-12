@@ -9,4 +9,6 @@ import javax.inject.Inject
 class Repo @Inject constructor(val iRetrofitServices: IRetrofitServices) {
     fun getWeatherFromAPI(appID:String,lat:String,lon:String):Observable<WeatherData>
             = iRetrofitServices.getCurrentLocationWeather(appID,lat,lon)
+
+
 }

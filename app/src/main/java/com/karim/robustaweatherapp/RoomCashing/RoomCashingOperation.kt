@@ -6,7 +6,7 @@ import com.karim.robustaweatherapp.model.Weather.WeatherData
 import com.karim.robustaweatherapp.model.roomcashing.OfflineWeather
 
 class RoomCashingOperation(var context: Context ) {
-    fun setDataToOfflineWeatherData(weatherData: WeatherData,imagePath:String){
+     fun setDataToOfflineWeatherData(weatherData: WeatherData,imagePath:String){
         val rebustaDatabase=RebustaOfflineDatabase.getInstance(context)
         val iWeatherDAO=rebustaDatabase?.iWeatherDAO()
         val offlineDatabase=OfflineWeather(0,weatherData.main.temp.toString(),weatherData.main.humidity.toString(),weatherData.name,imagePath)

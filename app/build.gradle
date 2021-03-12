@@ -41,6 +41,15 @@ android {
 }
 
 dependencies {
+
+
+    //intro for the application
+    implementation 'com.github.fibelatti:MaterialShowcaseView:2.1.0'
+
+    def lottieVersion = "3.4.0"
+    implementation "com.airbnb.android:lottie:$lottieVersion"
+
+
     def room_version = "2.2.5"
 
     implementation "androidx.room:room-runtime:$room_version"

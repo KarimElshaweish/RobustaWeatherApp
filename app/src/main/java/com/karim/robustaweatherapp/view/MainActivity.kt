@@ -5,16 +5,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.media.Image
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.os.Environment.getExternalStorageDirectory
 import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
-import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -24,12 +21,11 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.karim.robustaweatherapp.Adapter.WeatherDataAadpter
+import com.karim.robustaweatherapp.IntroExplanision
 import com.karim.robustaweatherapp.R
 import com.karim.robustaweatherapp.Utils.FaceBookOperations
 import com.karim.robustaweatherapp.model.Weather.WeatherData
@@ -46,24 +42,28 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
     val REQUEST_CODE_FOR_LOCATION=77;
     var faceBookOperations:FaceBookOperations?=null
     var weatherViewModel:WeatherViewModel?=null
-
     val CAMERA_CODE_PERMISSON=101
     val CAMERA_CODE_REQUEST=102
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        faceBookOperations=FaceBookOperations(this,login_button,imageView,shareBtn)
-        getTheCurrentLocation()
-        weatherViewModel=ViewModelProvider(this).get(WeatherViewModel::class.java)
-        takePhotoBtn.setOnClickListener(this)
+        val introExplanision =IntroExplanision()
+        introExplanision.createIntroMainActivity(this,takePhotoBtn)
+        if(intent.extras!=null&&intent.extras?.get("adapter") as Boolean){
+            cityName.text=intent.extras?.get("place").toString()
+            temp.text=intent.extras?.get("temp").toString()
+            humidity.text=intent.extras?.get("humidity").toString()
+            linearLayout.visibility=View.GONE
+            val bitmap=BitmapFactory.decodeFile(intent.getStringExtra("image"))
+            imageView.setImageBitmap(bitmap)
+        }else {
+            faceBookOperations = FaceBookOperations(this, login_button, imageView, shareBtn)
+            getTheCurrentLocation()
+            weatherViewModel = ViewModelProvider(this).get(WeatherViewModel::class.java)
+            takePhotoBtn.setOnClickListener(this)
+        }
        // printHashKey()
-        setRVAdapter()
-    }
-    fun setRVAdapter(){
-        histroyRV.setHasFixedSize(true)
-        histroyRV.layoutManager=LinearLayoutManager(this)
-        var weatherDataAadpter=WeatherDataAadpter(emptyList())
-        histroyRV.adapter=weatherDataAadpter
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         faceBookOperations!!.onActivityResult(requestCode,resultCode,data)
@@ -72,8 +72,8 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
             val bitmap=BitmapFactory.decodeFile(mCurrentPhotoPath)
             imageView.setImageBitmap(bitmap)
         }
-        faceBookOperations?.shareImageContent(convertViewToBitmap(imageLayout))
-
+        faceBookOperations?.shareImageContent(convertViewToBitmap(imageLayout),weatherData!!,mCurrentPhotoPath!!)
+        openCamera=false;
     }
     private fun convertViewToBitmap(layout: RelativeLayout):Bitmap{
         layout.setDrawingCacheEnabled(true)
@@ -114,6 +114,7 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
             }
         }
     }
+    var weatherData:WeatherData?=null
     private fun getLocation() {
         val locationRequest=LocationRequest()
         locationRequest.interval = 10000
@@ -153,6 +154,7 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
         weatherViewModel?.getCurrentLocationWeather("c48556f2022eda7bea9f8709f1f3d98a",lat,lon)
         weatherViewModel?.mutableLiveData?.observe(this,Observer{
             data:WeatherData-> println(data)
+            weatherData=data
             cityName.text = data.name
             temp.text= data.main.temp.toString()
             humidity.text=data.main.humidity.toString()
@@ -173,7 +175,9 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
             openCamera()
         }
     }
+    var openCamera=false;
     private fun openCamera(){
+        openCamera=true
         val cameraIntent=Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         val imageFile=createImageFile()
         val imageUri=FileProvider.getUriForFile(this,"com.example.android.fileProvider",imageFile)
@@ -192,5 +196,15 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
         )
         mCurrentPhotoPath=imageFile.absolutePath
         return imageFile
+    }
+
+    private fun resetAllViews() {
+        imageView.setImageDrawable(resources.getDrawable(R.drawable.defualt))
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if(!openCamera)
+            finish()
     }
 }
