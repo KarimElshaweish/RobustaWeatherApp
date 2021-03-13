@@ -4,10 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".view.HistroyActivity">
     <RelativeLayout
+        android:padding="2sp"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_30sdp"
+        android:layout_height="@dimen/_40sdp"
         android:id="@+id/tooBarRelativeLayout">
         <com.airbnb.lottie.LottieAnimationView
             android:layout_width="@dimen/_100sdp"
@@ -38,6 +40,8 @@
         android:gravity="center"
         android:fontFamily="@font/akaya"
         android:visibility="gone"
+        android:textColor="#d3d3d3"
+
         android:layout_marginTop="@dimen/_7sdp"
         android:layout_below="@id/tooBarRelativeLayout"
         android:text="@string/no_histroy_yet"/>

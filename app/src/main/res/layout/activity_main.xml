@@ -9,15 +9,7 @@
     tools:context=".view.MainActivity">
 
 
-    <com.facebook.login.widget.LoginButton
-        android:visibility="gone"
-        android:id="@+id/login_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="26dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+
 
 
     <RelativeLayout
@@ -48,6 +40,7 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:layout_weight="1"
+                    android:text="open GPS"
                     android:drawableLeft="@drawable/ic_location"
                     android:gravity="center"
                     android:textColor="@color/white" />
@@ -92,7 +85,7 @@
                 android:layout_height="fill_parent"
                 android:layout_weight="1" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/takePhotoBtn"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
@@ -101,6 +94,16 @@
                 android:text="pick image"
                 android:fontFamily="@font/akaya"
                 android:textColor="#022867" />
+            <com.facebook.login.widget.LoginButton
+                android:visibility="visible"
+                android:id="@+id/login_button"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="26dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
         </LinearLayout>
     </RelativeLayout>
 

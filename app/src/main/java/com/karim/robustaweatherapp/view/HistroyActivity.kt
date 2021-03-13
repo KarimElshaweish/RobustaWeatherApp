@@ -34,8 +34,10 @@ class HistroyActivity : AppCompatActivity() {
         historyViewModel?.getOfflineWeather(this)
         historyViewModel?.offlineMutableLiveData?.observe(this, Observer {
                 result-> runOnUiThread(Runnable {
-            if(result.isNotEmpty())
-                 weatherDataAadpter?.setNewList(result)
+            if(result.isNotEmpty()) {
+                noHistoryTextView.visibility = View.GONE
+                weatherDataAadpter?.setNewList(result)
+            }
             else
                 noHistoryTextView.visibility=View.VISIBLE
         })

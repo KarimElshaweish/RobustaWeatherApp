@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Looper
 import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.RelativeLayout
@@ -26,9 +27,9 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.karim.robustaweatherapp.Utils.IntroExplanision
 import com.karim.robustaweatherapp.R
 import com.karim.robustaweatherapp.Utils.FaceBookOperations
+import com.karim.robustaweatherapp.Utils.IntroExplanision
 import com.karim.robustaweatherapp.model.Weather.WeatherData
 import com.karim.robustaweatherapp.viewmodel.WeatherViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -49,6 +50,9 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        turnGPSOn()
+        if(login_button.text!="Log out")
+            loginClicked=true
         val introExplanision =
             IntroExplanision()
         introExplanision.createIntroMainActivity(this,takePhotoBtn)
@@ -67,6 +71,12 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
         }
        // printHashKey()
     }
+
+
+    private fun turnGPSOn() {
+       val intent =  Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        startActivity(intent)
+    }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         faceBookOperations!!.onActivityResult(requestCode,resultCode,data)
             super.onActivityResult(requestCode, resultCode, data)
@@ -75,7 +85,7 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
             imageView.setImageBitmap(bitmap)
             faceBookOperations?.shareImageContent(convertViewToBitmap(imageLayout),weatherData!!,mCurrentPhotoPath!!)
         }else{
-            if(!gettingCamerPermission)
+            if(!gettingCamerPermission&&!loginClicked)
                 finish()
         }
         openCamera=false;
@@ -114,6 +124,7 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
         }
         if(requestCode==CAMERA_CODE_PERMISSON&& grantResults.isNotEmpty()){
             if(grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                loginClicked=false
                 openCamera()
             }else{
                 Toast.makeText(this,"Permission Denied",Toast.LENGTH_SHORT).show()
@@ -167,10 +178,12 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
         })
     }
 
+    var loginClicked=false
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onClick(v: View?) {
         when(v?.id){
             R.id.takePhotoBtn->takePhotoFromCamera()
+            R.id.login_button->loginClicked=true
         }
     }
 
@@ -205,14 +218,9 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
         mCurrentPhotoPath=imageFile.absolutePath
         return imageFile
     }
-
-    private fun resetAllViews() {
-        imageView.setImageDrawable(resources.getDrawable(R.drawable.defualt))
-    }
-
     override fun onPause() {
         super.onPause()
-        if(!openCamera&&!gettingCamerPermission)
+        if(!openCamera&&!gettingCamerPermission&&!loginClicked)
             finish()
     }
 
