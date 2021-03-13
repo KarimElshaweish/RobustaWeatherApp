@@ -3,16 +3,14 @@ package com.karim.robustaweatherapp.view
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.karim.robustaweatherapp.Adapter.WeatherDataAadpter
-import com.karim.robustaweatherapp.IntroExplanision
+import com.karim.robustaweatherapp.Utils.IntroExplanision
 import com.karim.robustaweatherapp.R
 import com.karim.robustaweatherapp.viewmodel.HistroyViewModel
-import com.karim.robustaweatherapp.viewmodel.WeatherViewModel
-import dagger.hilt.EntryPoint
 import kotlinx.android.synthetic.main.activity_histroy.*
 
 class HistroyActivity : AppCompatActivity() {
@@ -22,7 +20,8 @@ class HistroyActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_histroy)
-        val introExplanision =IntroExplanision()
+        val introExplanision =
+            IntroExplanision()
         introExplanision.createIntroForButton(addingFab,this)
         historyViewModel= ViewModelProvider(this).get(HistroyViewModel::class.java)
         setRVAdapter()
@@ -35,7 +34,10 @@ class HistroyActivity : AppCompatActivity() {
         historyViewModel?.getOfflineWeather(this)
         historyViewModel?.offlineMutableLiveData?.observe(this, Observer {
                 result-> runOnUiThread(Runnable {
-            weatherDataAadpter?.setNewList(result)
+            if(result.isNotEmpty())
+                 weatherDataAadpter?.setNewList(result)
+            else
+                noHistoryTextView.visibility=View.VISIBLE
         })
         })
     }

@@ -1,6 +1,7 @@
 package com.karim.robustaweatherapp.view
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -25,7 +26,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.karim.robustaweatherapp.IntroExplanision
+import com.karim.robustaweatherapp.Utils.IntroExplanision
 import com.karim.robustaweatherapp.R
 import com.karim.robustaweatherapp.Utils.FaceBookOperations
 import com.karim.robustaweatherapp.model.Weather.WeatherData
@@ -48,7 +49,8 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val introExplanision =IntroExplanision()
+        val introExplanision =
+            IntroExplanision()
         introExplanision.createIntroMainActivity(this,takePhotoBtn)
         if(intent.extras!=null&&intent.extras?.get("adapter") as Boolean){
             cityName.text=intent.extras?.get("place").toString()
@@ -68,11 +70,14 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         faceBookOperations!!.onActivityResult(requestCode,resultCode,data)
             super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode==CAMERA_CODE_REQUEST){
+        if (!gettingCamerPermission&&requestCode==CAMERA_CODE_REQUEST&&resultCode== Activity.RESULT_OK){
             val bitmap=BitmapFactory.decodeFile(mCurrentPhotoPath)
             imageView.setImageBitmap(bitmap)
+            faceBookOperations?.shareImageContent(convertViewToBitmap(imageLayout),weatherData!!,mCurrentPhotoPath!!)
+        }else{
+            if(!gettingCamerPermission)
+                finish()
         }
-        faceBookOperations?.shareImageContent(convertViewToBitmap(imageLayout),weatherData!!,mCurrentPhotoPath!!)
         openCamera=false;
     }
     private fun convertViewToBitmap(layout: RelativeLayout):Bitmap{
@@ -81,6 +86,7 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
         layout.setDrawingCacheEnabled(false)
         return bitmap
     }
+    var gettingCamerPermission=false
     fun getTheCurrentLocation(){
         if(ContextCompat.checkSelfPermission(
                 applicationContext,Manifest.permission.ACCESS_FINE_LOCATION
@@ -170,6 +176,7 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
 
     private fun takePhotoFromCamera(){
         if(ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA)!=PackageManager.PERMISSION_GRANTED){
+            gettingCamerPermission=true
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA),CAMERA_CODE_PERMISSON)
         }else{
             openCamera()
@@ -178,6 +185,7 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
     var openCamera=false;
     private fun openCamera(){
         openCamera=true
+        gettingCamerPermission=false
         val cameraIntent=Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         val imageFile=createImageFile()
         val imageUri=FileProvider.getUriForFile(this,"com.example.android.fileProvider",imageFile)
@@ -204,7 +212,8 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
 
     override fun onPause() {
         super.onPause()
-        if(!openCamera)
+        if(!openCamera&&!gettingCamerPermission)
             finish()
     }
+
 }

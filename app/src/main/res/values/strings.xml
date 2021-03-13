@@ -8,5 +8,6 @@
     <string name="robusta_weather_application">Robusta Weather Application</string>
     <string name="easy_get_your_current_location_weather_n_save_your_momery">Easy get your current location weather \n save your momery</string>
     <string name="history">History</string>
+    <string name="no_histroy_yet">No Histroy yet</string>
 
 </resources>

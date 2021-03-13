@@ -31,9 +31,19 @@
             android:layout_centerVertical="true"/>
 
     </RelativeLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/noHistoryTextView"
+        android:gravity="center"
+        android:fontFamily="@font/akaya"
+        android:visibility="gone"
+        android:layout_marginTop="@dimen/_7sdp"
+        android:layout_below="@id/tooBarRelativeLayout"
+        android:text="@string/no_histroy_yet"/>
     <androidx.recyclerview.widget.RecyclerView
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/tooBarRelativeLayout"
+        android:layout_below="@id/noHistoryTextView"
         android:id="@+id/histroyRV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
