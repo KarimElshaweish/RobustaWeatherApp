@@ -13,6 +13,11 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig
 
 
+/**
+ * Intro explanision
+ *          Used to make an intro explain every tool in the application
+ * @constructor Create empty Intro explanision
+ */
 class IntroExplanision {
     fun createIntroForButton(mButtonShow:FloatingActionButton,activity: Activity){
         MaterialShowcaseView.Builder(activity)

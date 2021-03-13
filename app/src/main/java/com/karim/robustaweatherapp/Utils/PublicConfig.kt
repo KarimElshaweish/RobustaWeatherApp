@@ -8,6 +8,12 @@ import android.util.Log
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 
+/**
+ * Public config
+ *          This class used to get hashKey
+ * @property context
+ * @constructor Create empty Public config
+ */
 class PublicConfig(val context: Context) {
     fun printHashKey() {
         try {

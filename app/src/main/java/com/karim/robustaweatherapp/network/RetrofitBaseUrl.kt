@@ -15,6 +15,11 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
+/**
+ * Retrofit base url
+ *
+ * @constructor Create empty Retrofit base url
+ */
 @Module
 @InstallIn(ApplicationComponent::class)
 class RetrofitBaseUrl {
@@ -26,6 +31,11 @@ class RetrofitBaseUrl {
         .readTimeout(90,TimeUnit.SECONDS)
         .build()
 
+    /**
+     * Logging interceptor
+     *  inil the retrofit config
+     * @return
+     */
    private fun loggingInterceptor():Interceptor{
         val interceptor=HttpLoggingInterceptor()
         if(DEBUG){
@@ -43,6 +53,10 @@ class RetrofitBaseUrl {
         .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
 
+    /**
+     * Creat services
+     *injected variable used in the view model
+     */
     @Provides
     @Singleton
     fun creatServices()=retrofit.create(IRetrofitServices::class.java)

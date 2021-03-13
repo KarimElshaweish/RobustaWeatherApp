@@ -30,6 +30,10 @@ class HistroyActivity : AppCompatActivity() {
             startActivity(Intent(this,MainActivity::class.java))
         }
     }
+
+    /**'
+     * Saving the current data offline
+     */
     fun getOfflineData(){
         historyViewModel?.getOfflineWeather(this)
         historyViewModel?.offlineMutableLiveData?.observe(this, Observer {
@@ -55,7 +59,6 @@ class HistroyActivity : AppCompatActivity() {
         super.onRestart()
         getOfflineData()
     }
-
     override fun onResume() {
         super.onResume()
         getOfflineData()

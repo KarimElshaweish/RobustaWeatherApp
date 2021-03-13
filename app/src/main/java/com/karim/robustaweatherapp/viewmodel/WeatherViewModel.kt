@@ -12,13 +12,26 @@ import com.karim.robustaweatherapp.model.roomcashing.OfflineWeather
 import com.karim.robustaweatherapp.repo.Repo
 import io.reactivex.rxjava3.schedulers.Schedulers
 
+/**
+ * Weather view model
+ *
+ * @property repo injected for Repo to pass value of the current api
+ * @constructor Create empty Weather view model
+ */
 class WeatherViewModel @ViewModelInject constructor(private val repo:Repo):ViewModel(){
     var mutableLiveData=MutableLiveData<WeatherData>()
 
     fun getCurrentLocationWeather(appID:String,lat:String,lon:String)= getReponseFromApi(appID,lat,lon)
 
 
-
+    /**
+     * Get reponse from api
+     *
+     * getting the current weather information for API
+     * @param appID current api ID
+     * @param lat current location lat
+     * @param lon current location lon
+     */
     private fun getReponseFromApi(appID:String, lat:String, lon:String){
         repo.getWeatherFromAPI(appID,lat,lon).subscribeOn(Schedulers.io())
             .subscribe({

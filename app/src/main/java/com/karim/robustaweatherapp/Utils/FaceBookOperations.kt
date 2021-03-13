@@ -18,22 +18,30 @@ import com.karim.robustaweatherapp.R
 import com.karim.robustaweatherapp.RoomCashing.RoomCashingOperation
 import com.karim.robustaweatherapp.model.Weather.WeatherData
 
+/**
+ * Face book operations
+ *this class is used to make operation on facebook api
+ * @ini will init the data getting from facebook ,callback manager and token tracker to track the current facebook login state
+ * @property context
+ * @property loginButton
+ * @property imageView
+ * @property shareBtn
+ * @constructor Create empty Face book operations
+ */
 class FaceBookOperations (var context: Context,var loginButton: LoginButton,var imageView: ImageView,var shareBtn: ShareButton) {
 
-    var mySharedPreferences:MySharedPreferences?=null
     var callbackManager:CallbackManager?=null
+    val TAG="Login State"
     init {
         callbackManager= CallbackManager.Factory.create()
-        mySharedPreferences= MySharedPreferences(context)
         loginButton.setPermissions(listOf("user_gender,user_friends"))
         loginButton.registerCallback(callbackManager,object : FacebookCallback<LoginResult> {
             override fun onSuccess(result: LoginResult?) {
-                Log.d("demo","Login Successfully")
-                saveFaceBookLogin()
+                Log.d(TAG,"Login Successfully")
             }
 
             override fun onCancel() {
-                Log.d("demo","Login canceld")
+                Log.d(TAG,"Login canceld")
             }
 
             override fun onError(error: FacebookException?) {
@@ -55,17 +63,14 @@ class FaceBookOperations (var context: Context,var loginButton: LoginButton,var 
 
         }
     }
-    private fun removeFaceBookLogin() {
-        mySharedPreferences!!.removeFaceBookToken("fb")
-    }
 
-
-
-    private fun saveFaceBookLogin() {
-        mySharedPreferences!!.saveFaceBookRegistration("fb")
-    }
-
-
+    /**
+     * Share image content
+     *used to set the sharedButton to share the image on facebook
+     * @param bitmap getting image from camera passing from the @MainActivity
+     * @param weatherData getting the weather information
+     * @param imagepath getting image path of the sending image
+     */
      fun shareImageContent( bitmap:Bitmap,weatherData: WeatherData,imagepath:String) {
         val sharePhoto = SharePhoto.Builder()
             .setBitmap(bitmap)
@@ -83,11 +88,24 @@ class FaceBookOperations (var context: Context,var loginButton: LoginButton,var 
         }
     }
 
+    /**
+     * Save to offline
+     *              save information of the weather and image captured to the offline database
+     * @param weatherData
+     * @param imagePath
+     */
     private fun saveToOffline(weatherData: WeatherData,imagePath: String) {
         val roomCashingOP=RoomCashingOperation(context)
         roomCashingOP.setDataToOfflineWeatherData(weatherData,imagePath)
     }
 
+    /**
+     * On activity result
+     *                       overrid the @onActivityResult to pass parameters to the callback manager
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?){
         callbackManager?.onActivityResult(requestCode,resultCode,data)
     }

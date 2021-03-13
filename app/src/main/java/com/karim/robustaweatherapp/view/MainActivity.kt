@@ -4,17 +4,13 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.os.Looper
 import android.provider.MediaStore
-import android.provider.Settings
 import android.util.Log
 import android.view.View
-import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -29,14 +25,15 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.karim.robustaweatherapp.R
 import com.karim.robustaweatherapp.Utils.FaceBookOperations
+import com.karim.robustaweatherapp.Utils.ImageProcessing.Companion.convertViewToBitmap
+import com.karim.robustaweatherapp.Utils.ImageProcessing.Companion.createImageFile
+import com.karim.robustaweatherapp.Utils.ImageProcessing.Companion.getImagePath
 import com.karim.robustaweatherapp.Utils.IntroExplanision
+import com.karim.robustaweatherapp.Utils.Location
 import com.karim.robustaweatherapp.model.Weather.WeatherData
 import com.karim.robustaweatherapp.viewmodel.WeatherViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
 
 
 @AndroidEntryPoint
@@ -46,11 +43,15 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
     var weatherViewModel:WeatherViewModel?=null
     val CAMERA_CODE_PERMISSON=101
     val CAMERA_CODE_REQUEST=102
+    var gettingCamerPermission=false
+    var mCurrentPhotoPath:String?=null
+    var loginClicked=false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        turnGPSOn()
+        val location=Location(this)
+        location.checkGpsStatus()
         if(login_button.text!="Log out")
             loginClicked=true
         val introExplanision =
@@ -71,12 +72,6 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
         }
        // printHashKey()
     }
-
-
-    private fun turnGPSOn() {
-       val intent =  Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-        startActivity(intent)
-    }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         faceBookOperations!!.onActivityResult(requestCode,resultCode,data)
             super.onActivityResult(requestCode, resultCode, data)
@@ -90,13 +85,11 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
         }
         openCamera=false;
     }
-    private fun convertViewToBitmap(layout: RelativeLayout):Bitmap{
-        layout.setDrawingCacheEnabled(true)
-        val bitmap = Bitmap.createBitmap(layout.getDrawingCache())
-        layout.setDrawingCacheEnabled(false)
-        return bitmap
-    }
-    var gettingCamerPermission=false
+
+    /**
+     * Get the current location
+     *  checking of the gps permission and get location of geLocation() method
+     */
     fun getTheCurrentLocation(){
         if(ContextCompat.checkSelfPermission(
                 applicationContext,Manifest.permission.ACCESS_FINE_LOCATION
@@ -109,6 +102,13 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
         }
     }
 
+    /**
+     * On request permissions result
+     *
+     * @param requestCode if it camera or location
+     * @param permissions
+     * @param grantResults
+     */
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -132,6 +132,13 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
         }
     }
     var weatherData:WeatherData?=null
+
+    /**
+     * Get location
+     *get location with interval 10000
+     * checking if the location permission is getting or not
+     * if yes getting lon and lat of the current location and passing it to get current weather
+     */
     private fun getLocation() {
         val locationRequest=LocationRequest()
         locationRequest.interval = 10000
@@ -167,6 +174,13 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
 
     }
 
+    /**
+     * Get weather data
+     *
+     * passing the lat and lon to get the current location from API
+     * @param lat of the current location
+     * @param lon of the current location
+     */
     private fun getWeatherData(lat: String, lon: String) {
         weatherViewModel?.getCurrentLocationWeather("c48556f2022eda7bea9f8709f1f3d98a",lat,lon)
         weatherViewModel?.mutableLiveData?.observe(this,Observer{
@@ -178,15 +192,17 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
         })
     }
 
-    var loginClicked=false
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onClick(v: View?) {
         when(v?.id){
             R.id.takePhotoBtn->takePhotoFromCamera()
-            R.id.login_button->loginClicked=true
         }
     }
 
+    /**
+     * Take photo from camera
+     *check if the camera location is getting or not if not request it else open camer
+     */
     private fun takePhotoFromCamera(){
         if(ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA)!=PackageManager.PERMISSION_GRANTED){
             gettingCamerPermission=true
@@ -195,29 +211,24 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
             openCamera()
         }
     }
-    var openCamera=false;
+    var openCamera=false
+
+    /**
+     * Open camera
+     * open intent camera passing with it path to save image to it
+     */
     private fun openCamera(){
         openCamera=true
         gettingCamerPermission=false
         val cameraIntent=Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        val imageFile=createImageFile()
+        val imageFile=createImageFile(this)
+        mCurrentPhotoPath=getImagePath()
         val imageUri=FileProvider.getUriForFile(this,"com.example.android.fileProvider",imageFile)
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,imageUri)
         startActivityForResult(cameraIntent,CAMERA_CODE_REQUEST)
     }
-    var mCurrentPhotoPath:String?=null
-    fun createImageFile():File{
-       val timeStamp=SimpleDateFormat("yyyymmdd_hhmmss").format(Date())
-        val imageName="jpg_"+timeStamp+"_"
-        val storageDir=getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        val imageFile=File.createTempFile(
-                imageName,
-                ".jpg",
-                storageDir
-        )
-        mCurrentPhotoPath=imageFile.absolutePath
-        return imageFile
-    }
+
+
     override fun onPause() {
         super.onPause()
         if(!openCamera&&!gettingCamerPermission&&!loginClicked)
